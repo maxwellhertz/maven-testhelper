@@ -1,0 +1,49 @@
+name: Build Release
+
+on:
+  push: 
+    branches:
+      - main
+
+# Add this to avoid 403 error
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Release Version
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [linux, windows, darwin]
+        arch: [amd64, arm64] 
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Packages
+        run: |
+          pip install -U pyinstaller
+          pip install -U watchdog  
+
+      - name: Set environment variables
+        # change version every time you create a release
+        run: |
+          echo "APP_NAME=testhelper" >> $GITHUB_ENV
+          echo "VERSION=v0.0.1" >> $GITHUB_ENV
+
+      - name: Build
+        run: pyinstaller -n ${{ env.APP_NAME }}_${{ matrix.os }}_${{ matrix.arch }} testhelper.py
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: ./dist/${{ env.APP_NAME }}_${{ matrix.os }}_${{ matrix.arch }}/${{ env.APP_NAME }}_${{ matrix.os }}_${{ matrix.arch }}
