@@ -1,0 +1,1 @@
+A CLI tool that reruns Maven tests when Java source files change.
