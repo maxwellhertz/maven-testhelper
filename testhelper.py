@@ -23,10 +23,8 @@ class MavenTestEventHandler(FileSystemEventHandler):
         self.logger = logger or logging.root
 
         # Determine which Maven command to use.
-        mvnw_cmd = "mvnw.cmd" if os.name == "nt" else "mvnw"
-        self.mvn_cmd = (
-            os.path.join(".", mvnw_cmd) if os.path.exists(os.path.join(root, mvnw_cmd)) else "mvn"
-        )
+        mvnw_cmd = os.path.join(root, "mvnw.cmd" if os.name == "nt" else "mvnw")
+        self.mvn_cmd = mvnw_cmd if os.path.exists(mvnw_cmd) else "mvn"
 
     def on_moved(self, event: FileMovedEvent):
         super().on_moved(event)
